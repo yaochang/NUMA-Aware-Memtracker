@@ -7,32 +7,36 @@
 
 
 
-#include <numa.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
+
 #include "MemoryManager.h"
+#include <numa.h>
 
-namespace Memory
-{
 
-Arena::Arena(Memory *mem, uint32_t cpu_id, size_t sz)
+Memory::Arena::Arena(uint32_t cpu_id, size_t sz)
 {
-	this->memory_manager = mem;
+	//this->memory_manager = mem;
 	this->_cpu_id = cpu_id;
 	this->_arena_size = sz;
-	if(memory_manager->isNumaEnabled()){
+	if(true){
 		this->_numa_node_id = numa_node_of_cpu(cpu_id);
-		this->_data = numa_alloc_onnode(this->_arena_size, this->_numa_node_id);
+		this->_data = (char*)numa_alloc_onnode(this->_arena_size, this->_numa_node_id);
 		this->_cur_ponter = this->_data;
 	}else{
 		this->_numa_node_id = 0;
-		this->_data = malloc(this->_arena_size);
+		this->_data = (char*) malloc(this->_arena_size);
 		this->_cur_ponter = this->_data;
 	}
+	//initialize the allocated memory
+	memset(this->_data, 0, this->_arena_size);
+	printf("Arena %d finish initialization\n", cpu_id);
 }
 
-bool Arena::hasAvailableSpace(size_t size)
+bool Memory::Arena::hasAvailableSpace(size_t size)
 {
 	if( (this->_cur_ponter + size) - this->_data < this->_arena_size){
 		return true;
@@ -42,7 +46,7 @@ bool Arena::hasAvailableSpace(size_t size)
 }
 
 
-void* Arena::arena_malloc(size_t size)
+void* Memory::Arena::arena_malloc(size_t size)
 {
 	void* ret = NULL;
 	if(hasAvailableSpace(size)){
@@ -52,7 +56,7 @@ void* Arena::arena_malloc(size_t size)
 	return ret;
 }
 
-void Arena::arena_free(void *pointer)
+void Memory::Arena::arena_free(void *pointer)
 {
 	/*
 	 * Do nothing
@@ -60,7 +64,7 @@ void Arena::arena_free(void *pointer)
 	return;
 }
 
-void Arena::arena_extend()
+void Memory::Arena::arena_extend()
 {
 	/*
 	 * Do nothing
@@ -68,7 +72,7 @@ void Arena::arena_extend()
 	return;
 }
 
-Memory::Memory()
+Memory::Memory::Memory()
 {
 	if(numa_available() != -1){ //support numa
 		this->_isnuma = true;
@@ -84,35 +88,34 @@ Memory::Memory()
 	this->_arena_size = 0;
 }
 
-void Memory::init(uint32_t arena_cnt, uint32_t *cpus)
+void Memory::Memory::init(uint32_t arena_cnt, uint32_t *cpus)
 {
 	this->_arena_cnt = arena_cnt;
 	this->_arena = new Arena*[this->_arena_cnt];
 	size_t arena_size = 1000000000;
-	for(uint32_t i=0;i<this->_arena_size;i++){
-		this->_arena[i] = new Arena(this,cpus[i], arena_size);
+	for(uint32_t i=0;i<this->_arena_cnt;i++){
+		this->_arena[i] = new Arena(cpus[i], arena_size);
 	}
+	printf("Memory finishes initialization\n");
 }
 
-bool Memory::isNumaEnabled()
+bool Memory::Memory::isNumaEnabled()
 {
 	return this->_isnuma;
 }
 
-uint32_t Memory::getArenaNumber()
+uint32_t Memory::Memory::getArenaNumber()
 {
 	return this->_arena_cnt;
 }
 
-uint32_t Memory::getArenaSize()
+uint32_t Memory::Memory::getArenaSize()
 {
 	return this->_arena_size;
 }
 
-uint32_t Memory::getNumaNodeNumber()
+uint32_t Memory::Memory::getNumaNodeNumber()
 {
 	return this->_numa_node_cnt;
 }
 
-
-}//end namespace Memory

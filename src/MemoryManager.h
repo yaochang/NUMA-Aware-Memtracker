@@ -13,7 +13,8 @@
 #include <stdlib.h>
 #include <numa.h>
 
-namespace Memory{
+namespace Memory
+{
 
 ///*
 // * When memory is recycled, it will first saved in the recycle list.
@@ -40,27 +41,25 @@ namespace Memory{
 
 
 
-
-
 /*
  * Memory Arena
  * */
 class Arena
 {
 public:
-	Arena(Memory *mem, uint32_t cpu_id, size_t sz);
+	Arena(uint32_t cpu_id, size_t sz);
 	bool hasAvailableSpace(size_t size);
 	void* arena_malloc(size_t size);	//malloc on the Arena
 	void arena_free(void *pointer);		//free a space on the Arena and add it to the RecycleList
 	void arena_extend();				//There are no space left on this Arena, extend it
 private:
-	void *_cur_ponter;
+	char *_cur_ponter;
 	uint32_t _arena_size;	//Areana size
 	uint32_t _numa_node_id;	//NUMA node which this Arena is located on
 	uint32_t _cpu_id;		//used only when each thread is assigned to a distinct Arena
 //	RecycleList *_rlist;	//Recycle list, recollect spaces, which aims to improve memory usage
-	void *_data;			//Arena Address
-	Memory *memory_manager;	//Master Manager
+	char *_data;			//Arena Address
+	void *memory_manager;	//Master Manager
 };
 
 
@@ -79,20 +78,18 @@ public:
 	uint32_t getNumaNodeNumber();
 
 private:
-	Arena ** _arena;
+	Arena **_arena;
 	uint32_t _arena_cnt;
 	size_t _arena_size;
 	//machine info
 	bool _isnuma;
 	uint32_t _numa_node_cnt;
 	uint32_t _cpu_cnt;
-
-
 };
 
 
 
-}
+}//end namespace Memory
 
 
 
