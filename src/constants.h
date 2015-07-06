@@ -12,6 +12,9 @@
 //Each Class/Structure has its own type name, which is used to do collect memory statistic info
 #define CLASS_NAME
 
+//Arena Default Size
+#define OneG 1000000000
+
 
 
 

@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <numa.h>
+#include "SpinLock.h"
 
 namespace Memory
 {
@@ -47,19 +48,23 @@ namespace Memory
 class Arena
 {
 public:
-	Arena(uint32_t cpu_id, size_t sz);
+	Arena(uint32_t cpu_id, size_t sz, bool _isnuma);
+	void init_lock();
 	bool hasAvailableSpace(size_t size);
 	void* arena_malloc(size_t size);	//malloc on the Arena
 	void arena_free(void *pointer);		//free a space on the Arena and add it to the RecycleList
 	void arena_extend();				//There are no space left on this Arena, extend it
 private:
-	char *_cur_ponter;
 	uint32_t _arena_size;	//Areana size
 	uint32_t _numa_node_id;	//NUMA node which this Arena is located on
 	uint32_t _cpu_id;		//used only when each thread is assigned to a distinct Arena
+	bool _isnuma;
+
+	Spinlock *_lock;
+
 //	RecycleList *_rlist;	//Recycle list, recollect spaces, which aims to improve memory usage
 	char *_data;			//Arena Address
-	void *memory_manager;	//Master Manager
+	char *_cur_ponter;
 };
 
 
