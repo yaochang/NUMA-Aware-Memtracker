@@ -52,6 +52,7 @@ public:
 	void init_lock();
 	bool hasAvailableSpace(size_t size);
 	void* arena_malloc(size_t size);	//malloc on the Arena
+	void* arena_malloc_lock(size_t size);
 	void arena_free(void *pointer);		//free a space on the Arena and add it to the RecycleList
 	void arena_extend();				//There are no space left on this Arena, extend it
 private:

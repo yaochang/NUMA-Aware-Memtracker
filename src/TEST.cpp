@@ -19,7 +19,7 @@
 using namespace MemTrack;
 using namespace Memory;
 
-#define new	MemStamp(__FILE__, __LINE__) * new
+//#define new	MemStamp(__FILE__, __LINE__) * new
 
 class MEM
 {
@@ -28,13 +28,15 @@ class MEM
 	char c[20];
 };
 
+
+
 int main(int argc, char**argv)
 {
 	for(int i=0;i<10;i++){
-		MEM *object = MemTrack::new MEM;
+		MEM *object = new MEM;
 	}
 	printf("MEM size:%d\n", sizeof(MEM));
-	int *p = MemTrack::new int;
+	int *p = new int;
 	TrackListMemoryUsage();
 
 //	if(numa_available() != -1){
@@ -47,6 +49,7 @@ int main(int argc, char**argv)
 //		printf("numa node size = %d\n", numa_size);
 //
 //	}
+
 
 	uint32_t cpus[8];
 	for(uint32_t i=0;i<8;i++){

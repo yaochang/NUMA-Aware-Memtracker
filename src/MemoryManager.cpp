@@ -53,11 +53,26 @@ bool Memory::Arena::hasAvailableSpace(size_t size)
 
 void* Memory::Arena::arena_malloc(size_t size)
 {
-	void* ret = NULL;
+	void *ret = NULL;
 	if(hasAvailableSpace(size)){
 		ret = this->_cur_ponter;
 		this->_cur_ponter = this->_cur_ponter + size;
 	}
+	return ret;
+}
+
+/*
+ *	Need to make sure there is a lock before using this function
+ */
+void* Memory::Arena::arena_malloc_lock(size_t size)
+{
+	void *ret = NULL;
+	this->_lock->lock();
+	if(hasAvailableSpace(size)){
+		ret = this->_cur_ponter;
+		this->_cur_ponter = this->_cur_ponter + size;
+	}
+	this->_lock->unlock();
 	return ret;
 }
 
